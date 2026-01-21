@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Personer – en rad</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Century Gothic", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .main-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .row {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end; /* samma golv */
+      gap: 10px; /* exakt 10 px mellan varje person */
+      width: 100%;
+      flex-wrap: nowrap; /* ALLA på samma rad */
+    }
+
+    .person {
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .person img {
+      height: 180px;
+      width: auto;
+      display: block;
+      transform-origin: bottom center;
+    }
+
+    /* Skalor */
+    .scale-50 { transform: scale(0.6); }
+    .scale-20 { transform: scale(0.75); }
+    .scale-120 { transform: scale(1.2); }
+
+    /* Horisontella justeringar */
+    .shift-left-10 { transform: translateX(-10px); }
+    .shift-right-10 { transform: translateX(30px); }
+
+    .copy-text {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      max-width: 900px;
+      color: #111;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="main-container">
+
+    <!-- ALLA PERSONER I EN RAD -->
+    <div class="row">
+
+      <div class="person shift-right-10"><img src="person-1.svg"></div>
+      <div class="person shift-right-10"><img src="person-2.svg"></div>
+      <div class="person shift-right-10"><img src="person-3.svg" class="scale-50"></div>
+
+      <div class="person shift-left-10"><img src="person-4.svg"></div>
+      <div class="person shift-left-10"><img src="person-5.svg"></div>
+
+      <div class="person"><img src="person-6.svg"></div>
+      <div class="person"><img src="person-7.svg"></div>
+      <div class="person"><img src="person-8.svg" class="scale-50"></div>
+
+      <div class="person shift-left-10"><img src="person-9.svg" class="scale-20"></div>
+      <div class="person shift-left-10"><img src="person-10.svg"></div>
+
+      <div class="person"><img src="person-11.svg"></div>
+      <div class="person"><img src="person-12.svg"></div>
+      <div class="person"><img src="person-13.svg" class="scale-20"></div>
+      <div class="person"><img src="person-14.svg" class="scale-120"></div>
+      <div class="person"><img src="person-15.svg"></div>
+      <div class="person"><img src="person-16.svg"></div>
+      <div class="person"><img src="person-17.svg"></div>
+      <div class="person"><img src="person-18.svg"></div>
+      <div class="person"><img src="person-19.svg"></div>
+
+      <div class="person shift-left-10"><img src="person-20.svg" class="scale-50"></div>
+
+    </div>
+
+    <div class="copy-text">
+      Lyd inte i förväg: en medborgare som anpassar sig visar makten vad den kan göra.
+    </div>
+
+  </div>
+
+</body>
+</html>
