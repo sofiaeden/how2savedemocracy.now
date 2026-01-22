@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Personer – interaktiv rad</title>
+
+  <!-- Adobe Fonts (Typekit) -->
+  <link rel="stylesheet" href="https://use.typekit.net/auo3fmf.css">
+
+  <style>
+    :root{ --font: "stack-bricks", sans-serif; }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--font);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #000;
+      overflow-x: hidden;
+      color: #fff;
+
+      /* Fadea bakgrunden */
+      transition: background-color 3s ease;
+    }
+
+    /* Final state */
+    body.final {
+      background: #ffd400;
+    }
+
+    .info-icon {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      z-index: 1000;
+      transform: scale(0.4);
+      transform-origin: top left;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .main-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      width: 100%;
+    }
+
+    .row {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 10px;
+      width: 100%;
+      flex-wrap: nowrap;
+    }
+
+    .person {
+      display: flex;
+      align-items: flex-end;
+      cursor: pointer;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      transition: filter 0.25s ease;
+      will-change: filter;
+    }
+
+    .person img {
+      height: 180px;
+      width: auto;
+      display: block;
+      transform-origin: bottom center;
+      filter: brightness(0.45);
+      transition: filter 0.25s ease;
+      outline: none;
+      border: 0;
+    }
+
+    .person.active img { filter: brightness(1); }
+    .person.active {
+      filter: drop-shadow(0 0 12px #ffd400) drop-shadow(0 0 28px #ffd400);
+    }
+
+    .person:hover img { filter: brightness(1); }
+    .person:hover {
+      filter: drop-shadow(0 0 12px #ffd400) drop-shadow(0 0 28px #ffd400);
+    }
+
+    /* Info-ikon ska också kunna "stanna tänd" */
+    .info-icon.active img { filter: brightness(1); }
+    .info-icon.active {
+      filter: drop-shadow(0 0 12px #ffd400) drop-shadow(0 0 28px #ffd400);
+    }
+
+    .scale-50 { transform: scale(0.6); }
+    .scale-20 { transform: scale(0.75); }
+    .scale-120 { transform: scale(1.2); }
+
+    .shift-left-10 { transform: translateX(-10px); }
+    .shift-right-10 { transform: translateX(30px); }
+
+    .floating-text {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 900;
+      color: #fff;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      pointer-events: none;
+      white-space: normal;
+      max-width: min(900px, calc(100vw - 120px));
+      text-align: center;
+      font-family: var(--font);
+    }
+    .floating-text.visible { opacity: 1; }
+
+    /* Fadea ut texterna när final triggas */
+    .floating-text.fade-out {
+      opacity: 0 !important;
+    }
+
+    #topText {
+      top: 200px;
+      font-size: 50px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      line-height: 1.05;
+    }
+    #bottomText {
+      bottom: 200px;
+      font-size: 25px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    @media (max-width: 700px) {
+      #topText { font-size: 34px; top: 200px; }
+      #bottomText { font-size: 26px; bottom: 200px; }
+      .person img { height: 140px; }
+    }
+
+    /* INFO MODAL */
+    .info-overlay{
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: rgba(0,0,0,0.55);
+      z-index: 2000;
+      padding: 24px;
+    }
+    .info-overlay.open{ display: grid; }
+
+    .info-modal{
+      width: min(900px, calc(100vw - 48px));
+      max-height: calc(100vh - 48px);
+    }
+
+    .info-modal img{
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: calc(100vh - 48px);
+    }
+
+    .info-fallback {
+      display:none;
+      padding: 24px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-radius: 16px;
+      background: rgba(0,0,0,0.75);
+      text-align: center;
+      font-size: 18px;
+      line-height: 1.3;
+    }
+    .info-fallback.show { display:block; }
+  </style>
+</head>
+
+<body>
+  <div class="person info-icon" data-info="true" aria-label="Info">
+    <img src="info.svg" alt="Info">
+  </div>
+
+  <!-- Flytande texter -->
+  <div class="floating-text" id="topText"></div>
+  <div class="floating-text" id="bottomText"></div>
+
+  <div class="main-container">
+    <div class="row">
+      <div class="person shift-right-10" data-person="1"><img src="person-1.svg" alt=""></div>
+      <div class="person shift-right-10" data-person="2"><img src="person-2.svg" alt=""></div>
+      <div class="person shift-right-10" data-person="3"><img src="person-3.svg" class="scale-50" alt=""></div>
+
+      <div class="person shift-left-10" data-person="4"><img src="person-4.svg" alt=""></div>
+      <div class="person shift-left-10" data-person="5"><img src="person-5.svg" alt=""></div>
+
+      <div class="person" data-person="6"><img src="person-6.svg" alt=""></div>
+      <div class="person" data-person="7"><img src="person-7.svg" alt=""></div>
+      <div class="person" data-person="8"><img src="person-8.svg" class="scale-50" alt=""></div>
+
+      <div class="person shift-left-10" data-person="9"><img src="person-9.svg" class="scale-20" alt=""></div>
+      <div class="person shift-left-10" data-person="10"><img src="person-10.svg" alt=""></div>
+
+      <div class="person" data-person="11"><img src="person-11.svg" alt=""></div>
+      <div class="person" data-person="12"><img src="person-12.svg" alt=""></div>
+    </div>
+  </div>
+
+  <!-- Info-modal -->
+  <div id="infoOverlay" class="info-overlay" aria-hidden="true">
+    <div class="info-modal" role="dialog" aria-modal="true" aria-label="Information">
+      <img id="infoImg" src="inforuta.svg" alt="Information">
+      <div id="infoFallback" class="info-fallback">
+        Kunde inte ladda <b>inforuta.svg</b>.<br>
+        Kolla filnamn/sökväg (och att servern faktiskt hittar filen).
+      </div>
+    </div>
+  </div>
+
+  <!-- Osynlig YouTube-spelare (bara ljud) -->
+  <div id="player" style="position:fixed; width:1px; height:1px; left:-9999px; top:-9999px;"></div>
+
+  <script>
+    /***********************
+     * 1) TEXTER + PERSONER
+     ***********************/
+    const infoIcon = document.querySelector('.info-icon');
+
+    // Bara de 12 personerna (inte info-ikonen)
+    const people = Array.from(document.querySelectorAll('.person[data-person]'));
+
+    const topText = document.getElementById("topText");
+    const bottomText = document.getElementById("bottomText");
+
+    const tipsTop = {
+      1: "1. Lyd inte i förväg.",
+      2: "2. Försvara institutionerna.",
+      3: "3. Stöd flerpartisystemet.",
+      4: "4. Ta ansvar för hur världen ser ut.",
+      5: "5. Håll yrkesetiken högt.",
+      6: "6. Akta dig för paramilitärer.",
+      7: "7. Skilj dig från mängden.",
+      8: "8. Var aktsam om språket.",
+      9: "9. Tro på sanningen.",
+      10: "10. Undersök.",
+      11: "11. Arbeta aktivt i politiken.",
+      12: "12. Bidra till goda ändamål."
+    };
+
+    const tipsBottom = {
+      1: "En medborgare som anpassar sig visar makten vad den kan göra.",
+      2: "Institutionerna skyddar inte sig själva. Välj en domstol, tidning, lag, fackföring och försvara den.",
+      3: "Försvara reglerna för demokratiska val. Rösta på alla nivåer. Överväg att kandidera.",
+      4: "Lägg märke till hatsymboler. Låt dem inte normaliseras. Riv ner dem och statuera exempel för andra.",
+      5: "När politiker föregår med dåligt exempel blir det viktigare att alla andra upprätthåller god yrkesetik. Det är svårt att bryta ned en rättsstat utan jurister eller domare.",
+      6: "När beväpnade grupper som påstår sig bekämpa systemet börjar marchera med facklor och bilden av en ledare, är slutet nära. När dessa grupper samarbetar med polis och militär har slutet kommit.",
+      7: "Kom ihåg Rosa Parks: är man den första att agera följer andra med en.",
+      8: "Hitta egna sätt att formulera dig.",
+      9: "Att misstro fakta är att misstro friheten. Om ingenting är sant kan ingen kritisera makten. Om ingenting är sant är allt bara ett spel.",
+      10: "Ta själv reda på hur det ligger till. Ägna mer tid åt artiklar, prenumerera på tidningar och tidsskrifter och stöd på så vis grävande journalistik. Ta ansvar för det du säger och skriver till andra.",
+      11: "Gå ut, träffa nya människor och demonstrera med dem.",
+      12: "Hjälp andra göra gott genom att donera till välgörenhetsorganisationer. Stöd civilsamhället genom att vara aktiv i föreningar som speglar din livsåskådning."
+    };
+
+    // Start: alla personer aktiva
+    people.forEach(p => p.classList.add("active"));
+
+    const sticky = new Set();
+    const TOTAL_PERSONS = 12;
+    let finalTriggered = false;
+
+    function showTextsFor(personEl) {
+      const n = Number(personEl.dataset.person);
+      if (!n) return;
+
+      topText.textContent = tipsTop[n] || "";
+      bottomText.textContent = tipsBottom[n] || "";
+
+      if (topText.textContent.trim()) topText.classList.add("visible");
+      else topText.classList.remove("visible");
+
+      if (bottomText.textContent.trim()) bottomText.classList.add("visible");
+      else bottomText.classList.remove("visible");
+    }
+
+    function triggerFinal() {
+      if (finalTriggered) return;
+      finalTriggered = true;
+
+      // Låt sista texten ligga kvar i 5 sek, sen fadea text + bakgrund
+      setTimeout(() => {
+        topText.classList.remove("visible");
+        bottomText.classList.remove("visible");
+        topText.classList.add("fade-out");
+        bottomText.classList.add("fade-out");
+
+        document.body.classList.add("final");
+      }, 5000);
+    }
+
+    function checkAllLit() {
+      if (sticky.size >= TOTAL_PERSONS) triggerFinal();
+    }
+
+    // EN click-handler för personerna
+    people.forEach(person => {
+      person.addEventListener("click", () => {
+        if (finalTriggered) return;
+
+        person.classList.add("active");
+        sticky.add(person);
+        showTextsFor(person);
+        checkAllLit();
+      });
+    });
+
+    // Random dimming (på personer, inte info-ikon)
+    setTimeout(() => {
+      setInterval(() => {
+        if (finalTriggered) return;
+
+        const candidates = people.filter(p => p.classList.contains("active") && !sticky.has(p));
+        if (candidates.length === 0) return;
+
+        const pick = candidates[Math.floor(Math.random() * candidates.length)];
+        pick.classList.remove("active");
+      }, 450);
+    }, 2000);
+
+    /**************************************
+     * 2) YOUTUBE-LJUD: klick varsomhelst
+     **************************************/
+    const YT_VIDEO_ID = "0uJE6gaZsnY";
+
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(tag);
+
+    let player = null;
+    let ytReady = false;
+    let started = false;
+
+    window.onYouTubeIframeAPIReady = () => {
+      player = new YT.Player("player", {
+        videoId: YT_VIDEO_ID,
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          playsinline: 1,
+          modestbranding: 1,
+          rel: 0,
+          start: 3
+        },
+        events: { onReady: () => { ytReady = true; } }
+      });
+    };
+
+    function startAudio() {
+      if (started) return;
+      if (!ytReady || !player) return;
+
+      started = true;
+      try {
+        player.setVolume(100);
+        player.unMute?.();
+        player.playVideo();
+      } catch (e) {
+        started = false;
+      }
+    }
+
+    document.addEventListener("pointerdown", startAudio, { passive: true });
+    document.addEventListener("keydown", startAudio, { passive: true });
+
+    /***********************
+     * 3) INFO-MODAL
+     ***********************/
+    const infoOverlay = document.getElementById('infoOverlay');
+    const infoModal = infoOverlay.querySelector('.info-modal');
+    const infoImg = document.getElementById('infoImg');
+    const infoFallback = document.getElementById('infoFallback');
+
+    function openInfo() {
+      infoOverlay.classList.add('open');
+      infoOverlay.setAttribute('aria-hidden', 'false');
+
+      // Info-knappen ska fortsätta lysa när man tryckt
+      infoIcon.classList.add("active");
+
+      // (valfritt) visa en info-text
+      topText.textContent = "I politiken kan man inte ursäkta sig med att man blivit lurad.";
+      topText.classList.add("visible");
+      bottomText.textContent = "";
+      bottomText.classList.remove("visible");
+    }
+
+    function closeInfo() {
+      infoOverlay.classList.remove('open');
+      infoOverlay.setAttribute('aria-hidden', 'true');
+
+      // Nollställ texter när man stänger info
+      topText.textContent = "";
+      topText.classList.remove("visible");
+      bottomText.textContent = "";
+      bottomText.classList.remove("visible");
+    }
+
+    infoImg.addEventListener('error', () => {
+      console.warn('Kunde inte ladda inforuta.svg – kontrollera filnamn/sökväg.');
+      infoImg.style.display = 'none';
+      infoFallback.classList.add('show');
+    });
+
+    infoIcon.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openInfo();
+    });
+
+    infoOverlay.addEventListener('pointerdown', (e) => {
+      if (!infoModal.contains(e.target)) closeInfo();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeInfo();
+    });
+  </script>
+</body>
+</html>
